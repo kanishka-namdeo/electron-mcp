@@ -1,5 +1,17 @@
 # Testing the Electron MCP
 
+## Quick Start with npm
+
+If you have the package installed globally:
+
+```bash
+# Test the installed package
+electron-mcp-server
+
+# Or via npx
+npx -y @kanishka-namdeo/electron-mcp-server
+```
+
 ## MCP Server Test
 
 The basic MCP server test verifies that the server starts and lists all tools:

@@ -1,6 +1,6 @@
 {
-  "name": "electron-mcp-server",
-  "version": "1.0.0",
+  "name": "@kanishka-namdeo/electron-mcp-server",
+  "version": "1.0.1",
   "description": "MCP server for testing Electron applications using Playwright",
   "type": "module",
   "main": "dist/index.js",
@@ -38,10 +38,25 @@
     "electron",
     "playwright",
     "testing",
-    "automation"
+    "automation",
+    "cdp",
+    "chrome-devtools-protocol",
+    "e2e-testing",
+    "ui-testing",
+    "cursor",
+    "claude",
+    "ai-tools"
   ],
-  "author": "Electron MCP Server Contributors",
+  "author": "Kanishka Namdeo <kanishka.namdeo@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/kanishka-namdeo/electron-mcp-server#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kanishka-namdeo/electron-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kanishka-namdeo/electron-mcp-server/issues"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "pino": "^9.0.0",

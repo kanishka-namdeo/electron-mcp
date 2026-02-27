@@ -221,9 +221,17 @@ Now automatically retries with exponential backoff and IPv6/IPv4 fallback.
 
 ## Tool Count
 
-- **Original**: 24 tools
-- **Enhanced**: 34 tools (+10 new tools)
+- **Core Tools**: 24 tools (app lifecycle, element interaction, navigation, visual testing, window control)
+- **Advanced CDP Tools**: 10 additional tools
 - **Total**: 34 tools
+
+### Categories
+
+1. **App Lifecycle** (4): launch, connect, close, list sessions
+2. **Element Interaction** (9): navigate, click, fill, select, get_text, screenshot, wait, execute, get_page_info
+3. **Main Process** (5): execute_main_process_script, get_main_window_info, focus/minimize/maximize_main_window
+4. **Visual Testing** (6): take_screenshot, capture_element_screenshot, compare_screenshots, get/set_viewport_size, get_accessibility_tree
+5. **Advanced CDP** (10): protocol_info, network emulation, geolocation, device metrics, console/performance metrics, cache, user_agent
 
 ## Edge Cases Handled
 

@@ -160,7 +160,7 @@ npm run test:unit
 # Run integration tests only
 npm run test:integration
 
-# Run E2E tests only
+# Run E2E tests only (requires running Electron app)
 npm run test:e2e
 
 # Run compliance tests only
@@ -168,6 +168,12 @@ npm run test:compliance
 
 # Run tests in watch mode
 npm run test:watch
+
+# Setup test environment
+npm run test:setup
+
+# Cleanup test environment
+npm run test:cleanup
 ```
 
 ## E2E Test Requirements
