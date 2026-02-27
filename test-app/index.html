@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electron MCP Test App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    input[type="file"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #0066a3;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    button.secondary {
+      background: #6c757d;
+    }
+    button.secondary:hover {
+      background: #5a6268;
+    }
+    button.success {
+      background: #28a745;
+    }
+    button.success:hover {
+      background: #218838;
+    }
+    button.warning {
+      background: #ffc107;
+      color: #333;
+    }
+    button.warning:hover {
+      background: #e0a800;
+    }
+    button.danger {
+      background: #dc3545;
+    }
+    button.danger:hover {
+      background: #c82333;
+    }
+    .info-display {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .info-item {
+      margin-bottom: 8px;
+      padding: 8px;
+      background: white;
+      border-radius: 4px;
+    }
+    .info-item strong {
+      color: #666;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    #output {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      min-height: 100px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .color-box {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .color-box:hover {
+      border-color: #007acc;
+    }
+    .counter-display {
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      color: #007acc;
+      margin: 20px 0;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-indicator.active {
+      background: #28a745;
+    }
+    .status-indicator.inactive {
+      background: #dc3545;
+    }
+    .hidden {
+      display: none;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .checkbox-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0;
+      font-weight: normal;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .modal h3 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    /* Off-screen elements */
+    .off-screen-element {
+      position: fixed;
+      left: -9999px;
+    }
+    
+    /* Overlapping elements */
+    .overlap-container {
+      position: relative;
+      width: 200px;
+      height: 60px;
+      margin-top: 10px;
+    }
+    .overlap-element {
+      position: absolute;
+      width: 180px;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .overlap-behind {
+      background: #ffc107;
+      z-index: 1;
+    }
+    .overlap-front {
+      background: #dc3545;
+      color: white;
+      z-index: 2;
+      opacity: 0.9;
+    }
+    
+    /* Loading spinner */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007acc;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Drag and drop zone */
+    .drop-zone {
+      border: 3px dashed #007acc;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      background: #f0f8ff;
+      transition: all 0.3s;
+    }
+    .drop-zone.dragover {
+      background: #007acc;
+      color: white;
+      border-color: #0056b3;
+    }
+    .drop-zone-content {
+      min-height: 100px;
+    }
+    
+    /* Canvas */
+    canvas {
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      cursor: crosshair;
+    }
+    
+    /* Infinite scroll */
+    .infinite-scroll-container {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .scroll-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #eee;
+    }
+    .scroll-item:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .loading-more {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    
+    /* Shadow DOM styles */
+    .shadow-container {
+      border: 2px solid #007acc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    /* Iframe */
+    iframe {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    /* Disabled states */
+    .disabled-element {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    /* Opacity hidden */
+    .opacity-hidden {
+      opacity: 0;
+    }
+    
+    /* Custom checkbox styles */
+    .custom-checkbox-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-right: 20px;
+    }
+    .custom-checkbox-native {
+      position: absolute;
+      left: -9999px;
+    }
+    .custom-checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .custom-checkbox-label::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #007acc;
+      border-radius: 4px;
+      margin-right: 8px;
+      background: white;
+    }
+    .custom-checkbox-native:checked + .custom-checkbox-label::before {
+      background: #007acc;
+      content: '✓';
+      color: white;
+      text-align: center;
+      line-height: 16px;
+    }
+    
+    /* Console output styles */
+    .console-output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .console-line {
+      padding: 2px 0;
+      border-bottom: 1px solid #333;
+    }
+    .console-line:last-child {
+      border-bottom: none;
+    }
+    .console-line.info {
+      color: #4ec9b0;
+    }
+    .console-line.warning {
+      color: #dcdcaa;
+    }
+    .console-line.error {
+      color: #f44747;
+    }
+    .console-line.log {
+      color: #d4d4d4;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Electron MCP Test App</h1>
+    
+    <div class="card">
+      <h2>Application Info</h2>
+      <button id="getInfoBtn">Get App Info</button>
+      <div id="appInfo" class="info-display"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Element Interaction Tests</h2>
+      
+      <div class="form-group">
+        <label>Text Input:</label>
+        <input type="text" id="textInput" placeholder="Enter text here...">
+      </div>
+      
+      <div class="form-group">
+        <label>Number Input:</label>
+        <input type="number" id="numberInput" placeholder="Enter number..." min="0" max="100" value="42">
+      </div>
+      
+      <div class="form-group">
+        <label>Textarea:</label>
+        <textarea id="textarea" placeholder="Enter multi-line text..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>Select Dropdown:</label>
+        <select id="selectDropdown">
+          <option value="">Select an option...</option>
+          <option value="option1">Option 1</option>
+          <option value="option2">Option 2</option>
+          <option value="option3">Option 3</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Checkbox Group:</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="checkbox1" value="check1"> Checkbox 1</label>
+          <label><input type="checkbox" id="checkbox2" value="check2"> Checkbox 2</label>
+          <label><input type="checkbox" id="checkbox3" value="check3"> Checkbox 3</label>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Radio Group:</label>
+        <div class="checkbox-group">
+          <label><input type="radio" name="radioGroup" value="radio1"> Radio 1</label>
+          <label><input type="radio" name="radioGroup" value="radio2"> Radio 2</label>
+          <label><input type="radio" name="radioGroup" value="radio3"> Radio 3</label>
+        </div>
+      </div>
+      
+      <div class="button-grid">
+        <button id="primaryBtn">Primary Button</button>
+        <button id="secondaryBtn" class="secondary">Secondary Button</button>
+        <button id="successBtn" class="success">Success Button</button>
+        <button id="warningBtn" class="warning">Warning Button</button>
+        <button id="dangerBtn" class="danger">Danger Button</button>
+      </div>
+      
+      <div id="elementOutput" class="info-display">
+        <div class="info-item"><strong>Last Action:</strong> None</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Dynamic Content</h2>
+      <div class="counter-display" id="counter">0</div>
+      <div class="button-grid">
+        <button id="incrementBtn">Increment</button>
+        <button id="decrementBtn">Decrement</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+      
+      <div class="form-group" style="margin-top: 20px;">
+        <label>Dynamic Text Area:</label>
+        <div id="dynamicText" class="info-display">Click buttons to see dynamic updates</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Hidden/Visible Elements</h2>
+      <button id="toggleHiddenBtn">Toggle Hidden Element</button>
+      <div id="hiddenElement" class="hidden info-display" style="margin-top: 10px; background: #e3f2fd;">
+        This element is hidden by default
+      </div>
+      <div id="visibleElement" class="info-display fade-in" style="margin-top: 10px; background: #fff3cd;">
+        This element is visible by default
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Visual Testing</h2>
+      <div class="form-group">
+        <label>Color Boxes (for screenshot testing):</label>
+        <div>
+          <div class="color-box" style="background: #ff0000;" title="Red"></div>
+          <div class="color-box" style="background: #00ff00;" title="Green"></div>
+          <div class="color-box" style="background: #0000ff;" title="Blue"></div>
+          <div class="color-box" style="background: #ffff00;" title="Yellow"></div>
+          <div class="color-box" style="background: #ff00ff;" title="Magenta"></div>
+          <div class="color-box" style="background: #00ffff;" title="Cyan"></div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Viewport Info:</label>
+        <div id="viewportInfo" class="info-display">
+          <div class="info-item"><strong>Width:</strong> <span id="viewportWidth">-</span></div>
+          <div class="info-item"><strong>Height:</strong> <span id="viewportHeight">-</span></div>
+        </div>
+      </div>
+      
+      <button id="updateViewportBtn">Update Viewport Info</button>
+    </div>
+    
+    <div class="card">
+      <h2>Accessibility</h2>
+      <button id="a11yBtn" aria-label="Click to perform accessibility action">Accessibility Button</button>
+      <div id="a11yOutput" class="info-display">
+        <div class="info-item"><strong>Status:</strong> <span class="status-indicator inactive" id="a11yStatus"></span> Inactive</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Main Process Communication</h2>
+      <div class="form-group">
+        <label>Get Window Info:</label>
+        <button id="getWindowInfoBtn">Get Window Info</button>
+        <div id="windowInfo" class="info-display"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>Window Controls:</label>
+        <button id="focusBtn">Focus Window</button>
+        <button id="minimizeBtn" class="warning">Minimize</button>
+        <button id="maximizeBtn" class="success">Maximize</button>
+        <button id="restoreBtn" class="secondary">Restore</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Page Navigation & Info</h2>
+      <div class="form-group">
+        <label>Current URL:</label>
+        <input type="text" id="urlInput" value="https://example.com">
+      </div>
+      <button id="navigateBtn">Navigate</button>
+      <button id="getPageInfoBtn">Get Page Info</button>
+      <div id="pageInfoOutput" class="info-display"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Script Execution</h2>
+      <div class="form-group">
+        <label>JavaScript to Execute:</label>
+        <textarea id="scriptInput" placeholder="document.body.style.backgroundColor = 'lightyellow';">// Example:
+document.getElementById('dynamicText').textContent = 'Script executed at ' + new Date().toLocaleTimeString();</textarea>
+      </div>
+      <button id="executeBtn">Execute Script</button>
+      <div id="scriptOutput" class="info-display"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Shadow DOM Testing</h2>
+      <button id="createShadowBtn">Create Open Shadow DOM</button>
+      <button id="createClosedShadowBtn" class="warning">Create Closed Shadow DOM</button>
+      <div id="shadowContainer" style="margin-top: 15px;"></div>
+      
+      <div class="form-group" style="margin-top: 20px;">
+        <label>Shadow DOM Interaction:</label>
+        <div id="shadowOutput" class="info-display">No shadow DOM created yet</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Iframe Testing</h2>
+      <button id="loadIframeBtn">Load Iframe Content</button>
+      <div class="form-group" style="margin-top: 15px;">
+        <iframe id="testIframe" src="about:blank"></iframe>
+      </div>
+      <div id="iframeOutput" class="info-display">Click button to load content into iframe</div>
+    </div>
+    
+    <div class="card">
+      <h2>Modal & Dialog Testing</h2>
+      <button id="openModalBtn">Open Modal</button>
+      <button id="showAlertBtn">Show Alert</button>
+      <button id="showConfirmBtn">Show Confirm</button>
+      <button id="showPromptBtn">Show Prompt</button>
+      <div id="modalOutput" class="info-display" style="margin-top: 15px;">No modal actions yet</div>
+    </div>
+    
+    <div class="card">
+      <h2>Timing & Race Conditions</h2>
+      <button id="asyncActionBtn">Async Action (2s delay)</button>
+      <button id="rapidClickBtn">Rapid Click Test</button>
+      <div id="timingOutput" class="info-display">
+        <div class="info-item"><strong>Async Actions:</strong> <span id="asyncCount">0</span></div>
+        <div class="info-item"><strong>Click Count:</strong> <span id="clickCount">0</span></div>
+        <div id="loadingSpinner" class="loading-spinner hidden"></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Off-Screen & Overlapping Elements</h2>
+      <button id="clickOffScreenBtn">Click Off-Screen Element</button>
+      <button id="clickOverlapBtn">Click Overlapping Element (behind)</button>
+      <div id="offScreenOutput" class="info-display">
+        <div class="info-item"><strong>Off-Screen:</strong> <span id="offScreenStatus">Not clicked</span></div>
+        <div class="info-item"><strong>Overlap:</strong> <span id="overlapStatus">Not clicked</span></div>
+      </div>
+      <div class="off-screen-element">
+        <button id="offScreenElement">Off-Screen Button</button>
+      </div>
+      <div class="overlap-container">
+        <button class="overlap-element overlap-behind" id="overlapBehind">Behind Element</button>
+        <button class="overlap-element overlap-front" id="overlapFront">Front Element</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Drag and Drop</h2>
+      <div id="dropZone" class="drop-zone">
+        <div class="drop-zone-content">
+          <strong>Drop Zone</strong>
+          <p>Drag items here or click to add items</p>
+          <div id="dropZoneItems"></div>
+        </div>
+      </div>
+      <button id="addDragItemBtn">Add Draggable Item</button>
+      <div id="dragOutput" class="info-display" style="margin-top: 15px;">
+        <div class="info-item"><strong>Dropped Items:</strong> <span id="droppedCount">0</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Canvas Testing</h2>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div>
+          <label>Interactive Canvas:</label>
+          <canvas id="interactiveCanvas" width="300" height="200"></canvas>
+          <button id="clearCanvasBtn" style="margin-top: 10px;">Clear Canvas</button>
+        </div>
+        <div>
+          <label>Canvas Info:</label>
+          <div id="canvasOutput" class="info-display">
+            <div class="info-item"><strong>Clicks:</strong> <span id="canvasClicks">0</span></div>
+            <div class="info-item"><strong>Last Position:</strong> <span id="lastCanvasPos">None</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>SVG Testing</h2>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div>
+          <label>Interactive SVG:</label>
+          <svg id="testSvg" width="300" height="200" style="border: 2px solid #ddd;">
+            <rect id="svgRect1" x="20" y="20" width="80" height="60" fill="#007acc" rx="5" data-testid="rect1"/>
+            <circle id="svgCircle1" cx="200" cy="80" r="40" fill="#28a745" data-testid="circle1"/>
+            <path id="svgPath1" d="M 20 150 L 100 150 L 60 100 Z" fill="#dc3545" data-testid="path1"/>
+            <text id="svgText1" x="150" y="180" font-size="14" fill="#333">SVG Text</text>
+          </svg>
+        </div>
+        <div>
+          <label>SVG Info:</label>
+          <div id="svgOutput" class="info-display">
+            <div class="info-item"><strong>Selected:</strong> <span id="svgSelected">None</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Form Validation Errors</h2>
+      <div class="form-group">
+        <label>Email (required, must be valid):</label>
+        <input type="email" id="emailInput" required>
+        <div id="emailError" class="error hidden">Please enter a valid email address</div>
+      </div>
+      <div class="form-group">
+        <label>Password (min 8 characters):</label>
+        <input type="password" id="passwordInput" minlength="8">
+        <div id="passwordError" class="error hidden">Password must be at least 8 characters</div>
+      </div>
+      <button id="validateFormBtn">Validate Form</button>
+      <button id="resetFormBtn" class="secondary">Reset Form</button>
+      <div id="validationOutput" class="info-display" style="margin-top: 15px;">
+        <div class="info-item"><strong>Form Status:</strong> <span id="formStatus">Not validated</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Lazy Loading / Infinite Scroll</h2>
+      <div id="infiniteScrollContainer" class="infinite-scroll-container">
+        <div class="scroll-item">Item 1</div>
+        <div class="scroll-item">Item 2</div>
+        <div class="scroll-item">Item 3</div>
+        <div class="scroll-item">Item 4</div>
+        <div class="scroll-item">Item 5</div>
+      </div>
+      <div id="loadingMore" class="loading-more hidden">
+        <div class="loading-spinner"></div>
+        <span style="margin-left: 10px;">Loading more items...</span>
+      </div>
+      <div id="scrollOutput" class="info-display" style="margin-top: 15px;">
+        <div class="info-item"><strong>Total Items:</strong> <span id="totalScrollItems">5</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Disabled Elements</h2>
+      <button id="toggleDisabledBtn">Toggle Disabled State</button>
+      <div class="form-group" style="margin-top: 15px;">
+        <label>Disabled Button:</label>
+        <button id="disabledBtn" disabled>Disabled Button</button>
+      </div>
+      <div class="form-group">
+        <label>Disabled Input:</label>
+        <input type="text" id="disabledInput" disabled value="Cannot edit">
+      </div>
+      <div id="disabledOutput" class="info-display">
+        <div class="info-item"><strong>Disabled State:</strong> <span id="disabledStatus">Enabled</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Opacity Hidden Elements</h2>
+      <button id="toggleOpacityBtn">Toggle Opacity</button>
+      <div class="form-group" style="margin-top: 15px;">
+        <button id="opacityBtn" class="opacity-hidden">Opacity 0 Button</button>
+      </div>
+      <div id="opacityOutput" class="info-display">
+        <div class="info-item"><strong>Opacity:</strong> <span id="opacityStatus">0</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Custom Checkbox (Framework Pattern)</h2>
+      <div class="form-group">
+        <div class="custom-checkbox-wrapper">
+          <input type="checkbox" id="customCheckbox" class="custom-checkbox-native">
+          <label for="customCheckbox" class="custom-checkbox-label">Custom Styled Checkbox</label>
+        </div>
+      </div>
+      <div id="customCheckboxOutput" class="info-display">
+        <div class="info-item"><strong>Checked:</strong> <span id="customCheckboxStatus">false</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>File Upload</h2>
+      <div class="form-group">
+        <label>Upload File:</label>
+        <input type="file" id="fileInput" accept=".txt,.json,.png,.jpg">
+      </div>
+      <div id="fileOutput" class="info-display">
+        <div class="info-item"><strong>Selected File:</strong> <span id="fileName">None</span></div>
+        <div class="info-item"><strong>File Size:</strong> <span id="fileSize">-</span></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Raw IPC Test</h2>
+      <div class="form-group">
+        <label>Test Message:</label>
+        <input type="text" id="messageInput" placeholder="Enter a message...">
+      </div>
+      <button id="sendMessageBtn">Send Message</button>
+      <div id="output"></div>
+    </div>
+
+    <div class="card">
+      <h2>Network Conditions Test</h2>
+      <div class="form-group">
+        <label>Simulate Network Status:</label>
+        <div id="networkStatus" class="info-display" style="margin-bottom: 15px;">
+          <div class="info-item"><strong>Status:</strong> <span id="currentNetworkStatus">Online</span></div>
+        </div>
+      </div>
+      <button id="simulateOfflineBtn">Simulate Offline</button>
+      <button id="simulateSlowNetworkBtn">Simulate Slow 3G</button>
+      <button id="simulateFastNetworkBtn">Simulate Fast 4G</button>
+      <button id="resetNetworkBtn" class="secondary">Reset Network</button>
+      <div class="form-group" style="margin-top: 15px;">
+        <label>Test Network Request:</label>
+        <button id="testNetworkRequestBtn">Fetch Test Data</button>
+      </div>
+      <div id="networkOutput" class="info-display">
+        <div class="info-item"><strong>Last Request:</strong> <span id="networkRequestResult">-</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Geolocation Test</h2>
+      <div class="form-group">
+        <label>Current Location:</label>
+        <div id="locationOutput" class="info-display" style="margin-bottom: 15px;">
+          <div class="info-item"><strong>Latitude:</strong> <span id="currentLatitude">-</span></div>
+          <div class="info-item"><strong>Longitude:</strong> <span id="currentLongitude">-</span></div>
+          <div class="info-item"><strong>Accuracy:</strong> <span id="currentAccuracy">-</span></div>
+        </div>
+      </div>
+      <button id="getCurrentLocationBtn">Get Current Location</button>
+      <div class="form-group" style="margin-top: 15px;">
+        <label>Set Test Location:</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <input type="number" id="testLatitude" placeholder="Latitude (e.g., 40.7128)" step="0.0001">
+          <input type="number" id="testLongitude" placeholder="Longitude (e.g., -74.0060)" step="0.0001">
+        </div>
+        <input type="number" id="testAccuracy" placeholder="Accuracy in meters (optional)">
+      </div>
+      <button id="setTestLocationBtn">Set Test Location</button>
+      <button id="clearTestLocationBtn" class="secondary">Clear Test Location</button>
+    </div>
+
+    <div class="card">
+      <h2>Device Metrics Test</h2>
+      <div class="form-group">
+        <label>Current Device Metrics:</label>
+        <div id="deviceMetricsOutput" class="info-display" style="margin-bottom: 15px;">
+          <div class="info-item"><strong>Width:</strong> <span id="deviceWidth">-</span></div>
+          <div class="info-item"><strong>Height:</strong> <span id="deviceHeight">-</span></div>
+          <div class="info-item"><strong>Device Scale Factor:</strong> <span id="deviceScaleFactor">-</span></div>
+          <div class="info-item"><strong>Mobile:</strong> <span id="deviceMobile">false</span></div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+        <button id="setDesktopBtn">Desktop</button>
+        <button id="setTabletBtn">Tablet</button>
+        <button id="setMobileBtn">Mobile</button>
+        <button id="setCustomDeviceBtn">Custom</button>
+      </div>
+      <div class="form-group" id="customDeviceInputs" class="hidden">
+        <label>Custom Device Settings:</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <input type="number" id="customWidth" placeholder="Width" value="1920">
+          <input type="number" id="customHeight" placeholder="Height" value="1080">
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <input type="number" id="customScaleFactor" placeholder="Scale Factor (1-3)" value="1" step="0.5" min="1" max="3">
+          <label style="display: flex; align-items: center; margin: 0;">
+            <input type="checkbox" id="customMobile" style="margin-right: 5px;"> Mobile Mode
+          </label>
+        </div>
+      </div>
+      <button id="applyDeviceMetricsBtn" class="success" style="margin-top: 10px;">Apply Device Metrics</button>
+    </div>
+
+    <div class="card">
+      <h2>Console Messages Test</h2>
+      <div class="form-group">
+        <label>Generate Console Messages:</label>
+        <button id="logInfoBtn">Log Info</button>
+        <button id="logWarningBtn">Log Warning</button>
+        <button id="logErrorBtn">Log Error</button>
+        <button id="throwErrorBtn">Throw Error</button>
+      </div>
+      <div class="form-group">
+        <label>Console Output:</label>
+        <div id="consoleOutput" class="console-output">
+          <div class="console-line info">[Info] App initialized</div>
+        </div>
+      </div>
+      <button id="clearConsoleBtn" class="secondary">Clear Console</button>
+    </div>
+
+    <div class="card">
+      <h2>Performance Metrics Test</h2>
+      <div class="form-group">
+        <label>Performance Data:</label>
+        <div id="performanceOutput" class="info-display">
+          <div class="info-item"><strong>Load Time:</strong> <span id="performanceLoadTime">-</span></div>
+          <div class="info-item"><strong>DOM Content Loaded:</strong> <span id="performanceDomContentLoaded">-</span></div>
+          <div class="info-item"><strong>First Paint:</strong> <span id="performanceFirstPaint">-</span></div>
+          <div class="info-item"><strong>Memory Used:</strong> <span id="performanceMemory">-</span></div>
+        </div>
+      </div>
+      <button id="measurePerformanceBtn">Measure Performance</button>
+      <button id="runHeavyTaskBtn" class="secondary">Run Heavy Task (CPU Test)</button>
+      <button id="createManyElementsBtn" class="secondary">Create Many Elements (DOM Test)</button>
+    </div>
+
+    <div class="card">
+      <h2>Browser Cache Test</h2>
+      <div class="form-group">
+        <label>LocalStorage Test:</label>
+        <input type="text" id="cacheKey" placeholder="Key">
+        <input type="text" id="cacheValue" placeholder="Value" style="margin-top: 5px;">
+        <div style="margin-top: 10px;">
+          <button id="saveToCacheBtn">Save to LocalStorage</button>
+          <button id="loadFromCacheBtn">Load from LocalStorage</button>
+          <button id="clearLocalStorageBtn" class="secondary">Clear LocalStorage</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>SessionStorage Test:</label>
+        <input type="text" id="sessionKey" placeholder="Key">
+        <input type="text" id="sessionValue" placeholder="Value" style="margin-top: 5px;">
+        <div style="margin-top: 10px;">
+          <button id="saveToSessionBtn">Save to SessionStorage</button>
+          <button id="loadFromSessionBtn">Load from SessionStorage</button>
+          <button id="clearSessionStorageBtn" class="secondary">Clear SessionStorage</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cookie Test:</label>
+        <input type="text" id="cookieName" placeholder="Name">
+        <input type="text" id="cookieValue" placeholder="Value" style="margin-top: 5px;">
+        <div style="margin-top: 10px;">
+          <button id="setCookieBtn">Set Cookie</button>
+          <button id="getCookiesBtn">Get All Cookies</button>
+          <button id="clearCookiesBtn" class="secondary">Clear Cookies</button>
+        </div>
+      </div>
+      <div id="cacheOutput" class="info-display" style="margin-top: 15px;">
+        <div class="info-item"><strong>LocalStorage Items:</strong> <span id="localStorageCount">0</span></div>
+        <div class="info-item"><strong>SessionStorage Items:</strong> <span id="sessionStorageCount">0</span></div>
+        <div class="info-item"><strong>Cookies:</strong> <span id="cookiesCount">0</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>User Agent Test</h2>
+      <div class="form-group">
+        <label>Current User Agent:</label>
+        <textarea id="userAgentDisplay" readonly style="font-family: monospace; font-size: 12px;"></textarea>
+      </div>
+      <button id="refreshUserAgentBtn">Refresh User Agent</button>
+      <div id="userAgentInfo" class="info-display" style="margin-top: 15px;">
+        <div class="info-item"><strong>Browser:</strong> <span id="browserName">-</span></div>
+        <div class="info-item"><strong>OS:</strong> <span id="osName">-</span></div>
+        <div class="info-item"><strong>Engine:</strong> <span id="engineName">-</span></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Overlay -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+      <h3>Test Modal</h3>
+      <p>This is a test modal dialog.</p>
+      <button id="closeModalBtn" class="success">Close Modal</button>
+      <button id="confirmModalBtn" class="danger">Confirm</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "electron-mcp-server": {
+      "command": "node",
+      "args": [
+        "d:\\test_mcp\\electron-mcp\\dist\\index.js"
+      ],
+      "env": {
+        "LOG_LEVEL": "info",
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

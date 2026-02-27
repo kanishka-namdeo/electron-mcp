@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Test Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    input, select, textarea { padding: 8px; margin: 5px; width: 300px; }
+    #output { background: #f5f5f5; padding: 15px; margin-top: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Basic Test Page</h1>
+
+    <div class="section">
+      <h2>Buttons</h2>
+      <button id="button-primary">Primary Button</button>
+      <button id="button-secondary">Secondary Button</button>
+      <button id="button-success">Success Button</button>
+      <button id="button-danger">Danger Button</button>
+    </div>
+
+    <div class="section">
+      <h2>Inputs</h2>
+      <input type="text" id="text-input" placeholder="Text input">
+      <input type="number" id="number-input" placeholder="Number input">
+      <input type="email" id="email-input" placeholder="Email input">
+    </div>
+
+    <div class="section">
+      <h2>Select</h2>
+      <select id="select-dropdown">
+        <option value="">Select an option...</option>
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <h2>Checkboxes</h2>
+      <label><input type="checkbox" id="checkbox1" value="check1"> Checkbox 1</label>
+      <label><input type="checkbox" id="checkbox2" value="check2"> Checkbox 2</label>
+      <label><input type="checkbox" id="checkbox3" value="check3"> Checkbox 3</label>
+    </div>
+
+    <div class="section">
+      <h2>Radio Buttons</h2>
+      <label><input type="radio" name="radio-group" value="radio1"> Radio 1</label>
+      <label><input type="radio" name="radio-group" value="radio2"> Radio 2</label>
+      <label><input type="radio" name="radio-group" value="radio3"> Radio 3</label>
+    </div>
+
+    <div class="section">
+      <h2>Textarea</h2>
+      <textarea id="textarea" rows="4" cols="50" placeholder="Enter your message..."></textarea>
+    </div>
+
+    <div class="section">
+      <h2>Output</h2>
+      <div id="output">No action yet</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const output = document.getElementById('output');
+
+      document.getElementById('button-primary')?.addEventListener('click', () => {
+        output.textContent = 'Primary button clicked at ' + new Date().toLocaleTimeString();
+      });
+
+      document.getElementById('button-secondary')?.addEventListener('click', () => {
+        output.textContent = 'Secondary button clicked at ' + new Date().toLocaleTimeString();
+      });
+
+      document.getElementById('button-success')?.addEventListener('click', () => {
+        output.textContent = 'Success button clicked at ' + new Date().toLocaleTimeString();
+      });
+
+      document.getElementById('button-danger')?.addEventListener('click', () => {
+        output.textContent = 'Danger button clicked at ' + new Date().toLocaleTimeString();
+      });
+
+      document.getElementById('text-input')?.addEventListener('input', (e) => {
+        output.textContent = 'Text input: ' + e.target.value;
+      });
+
+      document.getElementById('number-input')?.addEventListener('input', (e) => {
+        output.textContent = 'Number input: ' + e.target.value;
+      });
+
+      document.getElementById('email-input')?.addEventListener('input', (e) => {
+        output.textContent = 'Email input: ' + e.target.value;
+      });
+
+      document.getElementById('select-dropdown')?.addEventListener('change', (e) => {
+        output.textContent = 'Selected: ' + e.target.value;
+      });
+
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(cb => cb.value);
+          output.textContent = 'Checked: ' + checked.join(', ');
+        });
+      });
+
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          output.textContent = 'Radio selected: ' + e.target.value;
+        });
+      });
+
+      document.getElementById('textarea')?.addEventListener('input', (e) => {
+        output.textContent = 'Textarea length: ' + e.target.value.length + ' characters';
+      });
+    });
+  </script>
+</body>
+</html>
