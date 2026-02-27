@@ -1,55 +1,56 @@
-# Source files
+# Source files (compiled to dist/)
 src/
 tsconfig.json
+tsconfig.*.json
 
-# Development files
+# Development and testing
 tests/
 test-app/
+test-*/
 *.test.ts
 *.spec.ts
-
-# Documentation (only README.md should be published)
-.trae/
-TESTING.md
-MCP_ENHANCEMENTS.md
-claude_desktop_config.json
-test-*.js
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Environment files
-.env
-.env.local
-.env.*
+*.test.js
+*.spec.js
 
 # Coverage reports
 coverage/
 *.lcov
+.nyc_output/
 
-# Build artifacts
-*.tsbuildinfo
+# Documentation (only README.md is included via files array)
+TESTING.md
+MCP_ENHANCEMENTS.md
 
-# Lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# Development configs
+vitest.config.ts
+vitest.config.*.ts
+eslint.config.js
+.eslintrc.json
+.prettierrc
+.prettierignore
+.cursor/
+
+# Environment files
+.env
+.env.*
 
 # CI/CD
 .github/
 .gitlab-ci.yml
 .travis.yml
 
-# Config files
-.eslintrc.json
-eslint.config.js
-.mcp.json
-vitest.config.ts
+# Build artifacts not in dist/
+*.tsbuildinfo
 
-# Other
-.DS_Store
+# Logs
 *.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
