@@ -342,7 +342,8 @@ export async function getLogs(input: GetLogsInput): Promise<{
         }
       }
 
-      fileStream.close();
+      // Note: fileStream is automatically closed by readline when iteration completes
+      // Explicit close is not needed and would throw TypeError since ReadStream has no close() method
     }
 
     return {
