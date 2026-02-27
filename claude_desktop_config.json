@@ -1,9 +1,10 @@
 {
   "mcpServers": {
     "electron-mcp-server": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "d:\\test_mcp\\electron-mcp\\dist\\index.js"
+        "-y",
+        "@kanishka-namdeo/electron-mcp-server"
       ],
       "env": {
         "LOG_LEVEL": "info",

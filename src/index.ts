@@ -14,8 +14,17 @@ import { MainProcessHandler } from './tools/handlers/main-process.js';
 import { VisualTestingHandler } from './tools/handlers/visual-testing.js';
 import { isElectronMCPError } from './core/errors.js';
 import { CDPAdvancedHandler } from './tools/handlers/cdp-advanced.js';
+import { initializeDebugManager, getDebugManager, closeDebugManager } from './core/debug-manager.js';
+import { initializeMCPLogging } from './core/mcp-logging.js';
+import * as debugTools from './tools/debug-tools.js';
 
 async function main() {
+  // Initialize debug manager early if environment variable is set
+  if (process.env.ELECTRON_MCP_DEBUG === 'true' || process.env.ELECTRON_MCP_DEBUG === '1') {
+    initializeDebugManager();
+    logger.info('Debug mode initialized from environment variable');
+  }
+
   const sessionManager = new SessionManager();
   const appLifecycleHandler = new AppLifecycleHandler(sessionManager);
   const elementInteractionHandler = new ElementInteractionHandler(sessionManager);
@@ -31,9 +40,24 @@ async function main() {
     {
       capabilities: {
         tools: {},
+        logging: {},
       },
     }
   );
+
+  // Initialize MCP logging integration
+  initializeMCPLogging(server, (level, loggerName, data) => {
+    // This sends log messages as MCP notifications to clients
+    // Implementation depends on how notifications are sent in the SDK version being used
+    // For now, we just log it
+    if (getDebugManager()?.getConfig().logToMCP) {
+      const debugManager = getDebugManager();
+      if (debugManager) {
+        const { LogLevel } = require('./core/debug-manager.js');
+        debugManager.log(LogLevel.INFO, loggerName as any, 'MCP Notification', data);
+      }
+    }
+  });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     logger.info('Listing tools');
@@ -151,6 +175,25 @@ async function main() {
         case 'get_user_agent':
           return { content: [{ type: 'text', text: JSON.stringify(await cdpAdvancedHandler.getUserAgent((args as any).sessionId), null, 2) }] };
 
+        // Debug tools
+        case 'enable_debug':
+          return { content: [{ type: 'text', text: JSON.stringify(await debugTools.enableDebug(args as any), null, 2) }] };
+
+        case 'disable_debug':
+          return { content: [{ type: 'text', text: JSON.stringify(await debugTools.disableDebug(), null, 2) }] };
+
+        case 'configure_debug':
+          return { content: [{ type: 'text', text: JSON.stringify(await debugTools.configureDebug(args as any), null, 2) }] };
+
+        case 'get_debug_status':
+          return { content: [{ type: 'text', text: JSON.stringify(await debugTools.getDebugStatus(), null, 2) }] };
+
+        case 'get_logs':
+          return { content: [{ type: 'text', text: JSON.stringify(await debugTools.getLogs(args as any), null, 2) }] };
+
+        case 'clear_logs':
+          return { content: [{ type: 'text', text: JSON.stringify(await debugTools.clearLogs(), null, 2) }] };
+
         default:
           throw new Error(`Unknown tool: ${name}`);
       }
@@ -209,12 +252,14 @@ async function main() {
 
   process.on('SIGINT', async () => {
     logger.info('Received SIGINT, shutting down...');
+    closeDebugManager();
     await sessionManager.cleanup();
     process.exit(0);
   });
 
   process.on('SIGTERM', async () => {
     logger.info('Received SIGTERM, shutting down...');
+    closeDebugManager();
     await sessionManager.cleanup();
     process.exit(0);
   });

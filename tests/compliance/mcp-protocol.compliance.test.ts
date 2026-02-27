@@ -134,9 +134,10 @@ describe('MCP Protocol Compliance Tests', () => {
     });
 
     it('should reject invalid JSON-RPC requests', async () => {
-      await expect(
-        sendRequest('invalid_method')
-      ).rejects.toThrow();
+      const response = await sendRequest('invalid_method');
+      expect(response.error).toBeDefined();
+      expect(response.error?.code).toBeDefined();
+      expect(response.error?.message).toBeDefined();
     });
   });
 
@@ -217,7 +218,19 @@ describe('MCP Protocol Compliance Tests', () => {
         arguments: {},
       });
 
-      expect(response.error).toBeDefined();
+      // Check that response has a result (MCP returns tool result, not error at response level)
+      expect(response).toBeDefined();
+      expect(response.result).toBeDefined();
+      
+      // The tool result should contain an error when arguments are invalid
+      const content = response.result?.content;
+      expect(Array.isArray(content)).toBe(true);
+      expect(content.length).toBeGreaterThan(0);
+      
+      // Parse the tool result text which contains the success/error info
+      const toolResult = JSON.parse(content[0].text);
+      expect(toolResult.success).toBe(false);
+      expect(toolResult.error).toBeDefined();
     });
 
     it('should return tool call results in proper format', async () => {
@@ -277,7 +290,8 @@ describe('MCP Protocol Compliance Tests', () => {
         const schema = tool.inputSchema;
         expect(schema).toHaveProperty('type');
         expect(schema).toHaveProperty('properties');
-        expect(schema).toHaveProperty('required');
+        // Required should be an array (can be empty if no required fields)
+        expect(Array.isArray(schema.required)).toBe(true);
       });
     });
   });

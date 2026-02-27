@@ -37,6 +37,11 @@ import {
   ClearBrowserCacheSchema,
   GetUserAgentSchema,
 } from './validation-enhanced.js';
+import {
+  EnableDebugSchema,
+  ConfigureDebugSchema,
+  GetLogsSchema,
+} from './debug-tools.js';
 
 function getDefaultValue(zodDef: z.ZodDefault<any>): any {
   const def = zodDef._def;
@@ -108,7 +113,7 @@ function zodToJsonSchema(schema: z.ZodTypeAny): object {
   return {
     type: 'object',
     properties,
-    required: required.length > 0 ? required : undefined,
+    required: required.length > 0 ? required : [],
   };
 }
 
@@ -282,5 +287,47 @@ export const tools = [
     name: 'get_user_agent',
     description: 'Get current user agent string',
     inputSchema: zodToJsonSchema(GetUserAgentSchema),
+  },
+  {
+    name: 'enable_debug',
+    description: 'Enable debug mode with granular logging for the MCP server. Logs are stored in .electron-mcp/logs directory within the project.',
+    inputSchema: zodToJsonSchema(EnableDebugSchema),
+  },
+  {
+    name: 'disable_debug',
+    description: 'Disable debug mode and stop logging.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: 'configure_debug',
+    description: 'Configure debug settings including log levels and categories.',
+    inputSchema: zodToJsonSchema(ConfigureDebugSchema),
+  },
+  {
+    name: 'get_debug_status',
+    description: 'Get current debug mode status and configuration.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: 'get_logs',
+    description: 'Retrieve and filter log entries from the project log directory.',
+    inputSchema: zodToJsonSchema(GetLogsSchema),
+  },
+  {
+    name: 'clear_logs',
+    description: 'Clear all log files from the project log directory.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
   },
 ] as const;

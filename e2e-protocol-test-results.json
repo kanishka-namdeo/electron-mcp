@@ -1,0 +1,208 @@
+{
+  "startTime": "2026-02-27T17:06:18.789Z",
+  "tests": [
+    {
+      "name": "Initialize MCP Server",
+      "startTime": "2026-02-27T17:06:18.792Z",
+      "status": "passed",
+      "result": {
+        "stdout": "{\"level\":30,\"time\":1772211980314,\"pid\":1076,\"hostname\":\"KANISHKAPC\",\"context\":\"MCPLogging\",\"msg\":\"MCP logging integration initialized\"}\n{\"level\":30,\"time\":1772211980317,\"pid\":1076,\"hostname\":\"KANISHKAPC\",\"msg\":\"Electron MCP Server started\"}\n{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{},\"logging\":{}},\"serverInfo\":{\"name\":\"electron-mcp-server\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":1}\n",
+        "stderr": ""
+      },
+      "endTime": "2026-02-27T17:06:23.830Z",
+      "duration": 5038
+    },
+    {
+      "name": "Tools List Request",
+      "startTime": "2026-02-27T17:06:23.830Z",
+      "status": "passed",
+      "result": {
+        "toolCount": 40,
+        "sampleTools": [
+          "launch_electron_app",
+          "connect_to_electron_cdp",
+          "close_session",
+          "list_sessions",
+          "navigate",
+          "click",
+          "fill",
+          "select",
+          "get_text",
+          "screenshot"
+        ],
+        "allTools": [
+          {
+            "name": "launch_electron_app",
+            "description": "Launch an Electron application for testing"
+          },
+          {
+            "name": "connect_to_electron_cdp",
+            "description": "Connect to a running Electron application via Chro"
+          },
+          {
+            "name": "close_session",
+            "description": "Close an Electron testing session and release reso"
+          },
+          {
+            "name": "list_sessions",
+            "description": "List all active Electron testing sessions"
+          },
+          {
+            "name": "navigate",
+            "description": "Navigate to a URL in the Electron app"
+          },
+          {
+            "name": "click",
+            "description": "Click on an element in the Electron app"
+          },
+          {
+            "name": "fill",
+            "description": "Fill an input field with text"
+          },
+          {
+            "name": "select",
+            "description": "Select an option from a dropdown"
+          },
+          {
+            "name": "get_text",
+            "description": "Get the text content of an element"
+          },
+          {
+            "name": "screenshot",
+            "description": "Take a screenshot of current page or an element"
+          },
+          {
+            "name": "wait_for_selector",
+            "description": "Wait for an element to appear on the page"
+          },
+          {
+            "name": "execute",
+            "description": "Execute JavaScript in the Electron app context"
+          },
+          {
+            "name": "get_page_info",
+            "description": "Get information about the current page (URL, title"
+          },
+          {
+            "name": "execute_main_process_script",
+            "description": "Execute JavaScript in the Electron main process co"
+          },
+          {
+            "name": "get_main_window_info",
+            "description": "Get information about the Electron main window"
+          },
+          {
+            "name": "focus_main_window",
+            "description": "Focus Electron main window"
+          },
+          {
+            "name": "minimize_main_window",
+            "description": "Minimize Electron main window"
+          },
+          {
+            "name": "maximize_main_window",
+            "description": "Maximize Electron main window"
+          },
+          {
+            "name": "take_screenshot",
+            "description": "Take a screenshot of current page"
+          },
+          {
+            "name": "capture_element_screenshot",
+            "description": "Take a screenshot of a specific element"
+          },
+          {
+            "name": "compare_screenshots",
+            "description": "Compare a screenshot with a baseline image"
+          },
+          {
+            "name": "get_viewport_size",
+            "description": "Get current viewport size"
+          },
+          {
+            "name": "set_viewport_size",
+            "description": "Set the viewport size"
+          },
+          {
+            "name": "get_accessibility_tree",
+            "description": "Get accessibility tree of current page"
+          },
+          {
+            "name": "get_protocol_info",
+            "description": "Get CDP protocol information including browser ver"
+          },
+          {
+            "name": "emulate_network_conditions",
+            "description": "Emulate network conditions (offline, slow network,"
+          },
+          {
+            "name": "reset_network_conditions",
+            "description": "Reset network conditions to default"
+          },
+          {
+            "name": "set_geolocation",
+            "description": "Set or override geolocation for the page"
+          },
+          {
+            "name": "clear_geolocation",
+            "description": "Clear geolocation override"
+          },
+          {
+            "name": "set_device_metrics",
+            "description": "Emulate device metrics (viewport size, device scal"
+          },
+          {
+            "name": "get_console_messages",
+            "description": "Capture console messages from the page"
+          },
+          {
+            "name": "get_performance_metrics",
+            "description": "Get performance metrics from the page"
+          },
+          {
+            "name": "clear_browser_cache",
+            "description": "Clear browser cache and cookies"
+          },
+          {
+            "name": "get_user_agent",
+            "description": "Get current user agent string"
+          },
+          {
+            "name": "enable_debug",
+            "description": "Enable debug mode with granular logging for the MC"
+          },
+          {
+            "name": "disable_debug",
+            "description": "Disable debug mode and stop logging."
+          },
+          {
+            "name": "configure_debug",
+            "description": "Configure debug settings including log levels and "
+          },
+          {
+            "name": "get_debug_status",
+            "description": "Get current debug mode status and configuration."
+          },
+          {
+            "name": "get_logs",
+            "description": "Retrieve and filter log entries from the project l"
+          },
+          {
+            "name": "clear_logs",
+            "description": "Clear all log files from the project log directory"
+          }
+        ]
+      },
+      "endTime": "2026-02-27T17:06:28.866Z",
+      "duration": 5036
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "endTime": "2026-02-27T17:06:28.866Z",
+  "duration": 10077
+}
