@@ -28,7 +28,7 @@ npm install -g @kanishka-namdeo/electron-mcp-server
 ### From Source
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/kanishka-namdeo/electron-mcp-server.git
 cd electron-mcp-server
 npm install
 npm run build
