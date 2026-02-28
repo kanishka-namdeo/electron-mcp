@@ -59,6 +59,54 @@ export const ConnectToCDPEnhancedSchema = z.object({
   retryDelay: z.number().int().min(100).optional(),
 });
 
+export const GetNavigationHistorySchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+});
+
+export const RestoreNavigationHistorySchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+  index: z.number().int().min(0).optional(),
+});
+
+export const StartRecordingSchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+});
+
+export const StopRecordingSchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+});
+
+export const ExportRecordingSchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+  testName: z.string().min(1).optional(),
+});
+
+export const GetAccessibilitySnapshotSchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+  includeHidden: z.boolean().optional().default(false),
+});
+
+export const FindAccessibleNodeSchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+  role: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  exact: z.boolean().optional().default(true),
+  limit: z.number().int().positive().max(10).optional().default(1),
+}).refine(
+  (value) => Boolean(value.role || value.name),
+  {
+    message: 'At least one of role or name must be provided',
+  }
+);
+
+export const InteractAccessibleNodeSchema = z.object({
+  sessionId: z.string().uuid('Invalid session ID'),
+  role: z.string().min(1, 'Role is required'),
+  name: z.string().min(1, 'Name is required'),
+  action: z.enum(['click', 'fill']),
+  value: z.string().optional(),
+});
+
 export type GetProtocolInfoInput = z.infer<typeof GetProtocolInfoSchema>;
 export type EmulateNetworkConditionsInput = z.infer<typeof EmulateNetworkConditionsSchema>;
 export type ResetNetworkConditionsInput = z.infer<typeof ResetNetworkConditionsSchema>;
@@ -70,3 +118,11 @@ export type GetPerformanceMetricsInput = z.infer<typeof GetPerformanceMetricsSch
 export type ClearBrowserCacheInput = z.infer<typeof ClearBrowserCacheSchema>;
 export type GetUserAgentInput = z.infer<typeof GetUserAgentSchema>;
 export type ConnectToCDPEnhancedInput = z.infer<typeof ConnectToCDPEnhancedSchema>;
+export type GetNavigationHistoryInput = z.infer<typeof GetNavigationHistorySchema>;
+export type RestoreNavigationHistoryInput = z.infer<typeof RestoreNavigationHistorySchema>;
+export type GetAccessibilitySnapshotInput = z.infer<typeof GetAccessibilitySnapshotSchema>;
+export type FindAccessibleNodeInput = z.infer<typeof FindAccessibleNodeSchema>;
+export type InteractAccessibleNodeInput = z.infer<typeof InteractAccessibleNodeSchema>;
+export type StartRecordingInput = z.infer<typeof StartRecordingSchema>;
+export type StopRecordingInput = z.infer<typeof StopRecordingSchema>;
+export type ExportRecordingInput = z.infer<typeof ExportRecordingSchema>;

@@ -76,6 +76,8 @@ enum ErrorCategory {
 | `get_performance_metrics` | Get performance metrics | `sessionId` |
 | `clear_browser_cache` | Clear cache and cookies | `sessionId` |
 | `get_user_agent` | Get current user agent | `sessionId` |
+| `get_navigation_history` | Get navigation history entries via CDP `Page.getNavigationHistory` | `sessionId` |
+| `restore_navigation_history` | Restore a navigation history entry via CDP `Page.navigateToHistoryEntry` | `sessionId`, `index?` |
 
 ### 4. Connection Health Monitoring ([`connection-health.ts`](src/core/connection-health.ts))
 
@@ -120,13 +122,17 @@ const chromiumBrowser = await CDPUtils.connectWithRetry({
 });
 ```
 
-### 6. Enhanced Validation ([`validation-enhanced.ts`](src/tools/validation-enhanced.ts))
+### 6. Enhanced Validation & New Schemas ([`validation-enhanced.ts`](src/tools/validation-enhanced.ts))
 
 #### Strict Input Validation
 - UUID validation for session IDs
 - Range validation for coordinates (-90 to 90 for latitude, -180 to 180 for longitude)
 - Positive number validation for throughput and latency
 - Type validation for all parameters
+- New schemas for:
+  - `get_accessibility_snapshot`, `find_accessible_node`, `interact_accessible_node`
+  - `start_recording`, `stop_recording`, `export_recording_as_test`
+  - `get_navigation_history`, `restore_navigation_history`
 
 ## Testing
 
@@ -210,6 +216,94 @@ Now automatically retries with exponential backoff and IPv6/IPv4 fallback.
 ```
 
 ### Capture Console Messages
+### Get Navigation History
+```json
+{
+  "name": "get_navigation_history",
+  "arguments": {
+    "sessionId": "<session-id>"
+  }
+}
+```
+
+### Restore Navigation History Entry
+```json
+{
+  "name": "restore_navigation_history",
+  "arguments": {
+    "sessionId": "<session-id>",
+    "index": 0
+  }
+}
+```
+
+### Accessibility Snapshot
+```json
+{
+  "name": "get_accessibility_snapshot",
+  "arguments": {
+    "sessionId": "<session-id>",
+    "includeHidden": false
+  }
+}
+```
+
+### Find Accessible Node
+```json
+{
+  "name": "find_accessible_node",
+  "arguments": {
+    "sessionId": "<session-id>",
+    "role": "button",
+    "name": "Click to perform accessibility action",
+    "exact": true,
+    "limit": 1
+  }
+}
+```
+
+### Interact with Accessible Node
+```json
+{
+  "name": "interact_accessible_node",
+  "arguments": {
+    "sessionId": "<session-id>",
+    "role": "button",
+    "name": "Click to perform accessibility action",
+    "action": "click"
+  }
+}
+```
+
+### Start Recording a Flow
+```json
+{
+  "name": "start_recording",
+  "arguments": {
+    "sessionId": "<session-id>"
+  }
+}
+```
+
+### Stop Recording and Export as Test
+```json
+{
+  "name": "stop_recording",
+  "arguments": {
+    "sessionId": "<session-id>"
+  }
+}
+```
+
+```json
+{
+  "name": "export_recording_as_test",
+  "arguments": {
+    "sessionId": "<session-id>",
+    "testName": "recorded example.com flow"
+  }
+}
+```
 ```json
 {
   "name": "get_console_messages",
@@ -222,16 +316,19 @@ Now automatically retries with exponential backoff and IPv6/IPv4 fallback.
 ## Tool Count
 
 - **Core Tools**: 24 tools (app lifecycle, element interaction, navigation, visual testing, window control)
-- **Advanced CDP Tools**: 10 additional tools
-- **Total**: 34 tools
+- **Advanced CDP Tools**: 12 additional tools
+- **Accessibility & Visual Tools**: 11 tools
+- **Codegen & Recording**: 3 tools
+- **Total**: 50+ tools
 
 ### Categories
 
 1. **App Lifecycle** (4): launch, connect, close, list sessions
 2. **Element Interaction** (9): navigate, click, fill, select, get_text, screenshot, wait, execute, get_page_info
-3. **Main Process** (5): execute_main_process_script, get_main_window_info, focus/minimize/maximize_main_window
-4. **Visual Testing** (6): take_screenshot, capture_element_screenshot, compare_screenshots, get/set_viewport_size, get_accessibility_tree
-5. **Advanced CDP** (10): protocol_info, network emulation, geolocation, device metrics, console/performance metrics, cache, user_agent
+3. **Main Process** (8): execute_main_process_script, get_main_window_info, focus/minimize/maximize_main_window, unresponsive callstack & shared dictionary capability tools
+4. **Visual Testing & Accessibility** (11): take_screenshot, capture_element_screenshot, compare_screenshots, get/set_viewport_size, get_accessibility_tree, accessibility snapshot and role-based tools
+5. **Advanced CDP** (12): protocol_info, network emulation, geolocation, device metrics, console/performance metrics, cache, user_agent, navigation history tools
+6. **Codegen & Recording** (3): start_recording, stop_recording, export_recording_as_test
 
 ## Edge Cases Handled
 

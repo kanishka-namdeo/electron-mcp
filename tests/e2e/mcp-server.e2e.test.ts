@@ -363,6 +363,102 @@ describe('MCP Server E2E Tests', () => {
     });
   });
 
+  describe('Navigation History Tools', () => {
+    beforeEach(async () => {
+      sessionId = await helper.connectToCDP(9222);
+    });
+
+    afterEach(async () => {
+      try {
+        await helper.closeSession(sessionId);
+      } catch (error) {
+      }
+    });
+
+    it('should get and restore navigation history', async () => {
+      await helper.callTool('navigate', {
+        sessionId,
+        url: 'https://example.com',
+      });
+
+      await helper.callTool('wait_for_selector', {
+        sessionId,
+        selector: 'h1',
+        timeout: 10000,
+      });
+
+      await helper.callTool('navigate', {
+        sessionId,
+        url: 'https://example.com/?page=2',
+      });
+
+      const history = await helper.callTool('get_navigation_history', {
+        sessionId,
+      });
+
+      expect(history.success).toBe(true);
+      expect(Array.isArray(history.entries)).toBe(true);
+      expect(history.entries.length).toBeGreaterThan(0);
+
+      const restoreResult = await helper.callTool('restore_navigation_history', {
+        sessionId,
+        index: 0,
+      });
+
+      expect(restoreResult.success).toBe(true);
+
+      const pageInfo = await helper.callTool('get_page_info', {
+        sessionId,
+      });
+
+      expect(pageInfo.url).toContain('example.com');
+    }, 60000);
+  });
+
+  describe('Codegen Recorder Tools', () => {
+    beforeEach(async () => {
+      sessionId = await helper.connectToCDP(9222);
+    });
+
+    afterEach(async () => {
+      try {
+        await helper.closeSession(sessionId);
+      } catch (error) {
+      }
+    });
+
+    it('should record a simple flow and export as test code', async () => {
+      await helper.callTool('start_recording', {
+        sessionId,
+      });
+
+      await helper.callTool('navigate', {
+        sessionId,
+        url: 'https://example.com',
+      });
+
+      await helper.callTool('wait_for_selector', {
+        sessionId,
+        selector: 'h1',
+        timeout: 10000,
+      });
+
+      await helper.callTool('stop_recording', {
+        sessionId,
+      });
+
+      const exportResult = await helper.callTool('export_recording_as_test', {
+        sessionId,
+        testName: 'recorded example.com flow',
+      });
+
+      expect(exportResult.success).toBe(true);
+      expect(typeof exportResult.testCode).toBe('string');
+      expect(exportResult.testCode).toContain('test(');
+      expect(exportResult.testCode).toContain('page.goto');
+    }, 60000);
+  });
+
   describe('Error Handling', () => {
     it('should return error for unknown tool', async () => {
       await expect(

@@ -1,6 +1,6 @@
 {
   "name": "@kanishka-namdeo/electron-mcp-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MCP server for testing Electron applications using Playwright",
   "type": "module",
   "main": "dist/index.js",
@@ -11,7 +11,10 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md"
   ],
   "scripts": {
     "build": "tsc",
@@ -58,7 +61,7 @@
     "url": "https://github.com/kanishka-namdeo/electron-mcp-server/issues"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.25.0",
     "pino": "^9.0.0",
     "playwright": "^1.48.0",
     "uuid": "^10.0.0",

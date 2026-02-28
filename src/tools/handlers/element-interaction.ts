@@ -1,5 +1,6 @@
 import { SessionManager } from '../../session/index.js';
 import { createLogger } from '../../core/logger.js';
+import { recordingManager } from '../../session/recording-manager.js';
 import {
   NavigateInput,
   ClickInput,
@@ -38,6 +39,13 @@ export class ElementInteractionHandler {
 
       logger.info({ sessionId: input.sessionId, url: input.url }, 'Navigated to URL');
 
+      if (recordingManager.isRecording(input.sessionId)) {
+        recordingManager.recordStep(input.sessionId, {
+          type: 'navigate',
+          url: input.url,
+        });
+      }
+
       return {
         success: true,
         url: page.url(),
@@ -66,6 +74,13 @@ export class ElementInteractionHandler {
       });
 
       logger.info({ sessionId: input.sessionId, selector: input.selector }, 'Clicked element');
+
+      if (recordingManager.isRecording(input.sessionId)) {
+        recordingManager.recordStep(input.sessionId, {
+          type: 'click',
+          selector: input.selector,
+        });
+      }
 
       return {
         success: true,
@@ -99,6 +114,14 @@ export class ElementInteractionHandler {
 
       logger.info({ sessionId: input.sessionId, selector: input.selector }, 'Filled element');
 
+      if (recordingManager.isRecording(input.sessionId)) {
+        recordingManager.recordStep(input.sessionId, {
+          type: 'fill',
+          selector: input.selector,
+          value: input.value,
+        });
+      }
+
       return {
         success: true,
         selector: input.selector,
@@ -131,6 +154,14 @@ export class ElementInteractionHandler {
       });
 
       logger.info({ sessionId: input.sessionId, selector: input.selector }, 'Selected option');
+
+      if (recordingManager.isRecording(input.sessionId)) {
+        recordingManager.recordStep(input.sessionId, {
+          type: 'select',
+          selector: input.selector,
+          value: input.value,
+        });
+      }
 
       return {
         success: true,
@@ -215,13 +246,25 @@ export class ElementInteractionHandler {
 
     const page = pages[0];
 
+    const effectiveTimeout = input.timeout ?? 30000;
+    const effectiveState = input.state ?? 'visible';
+
     try {
       await page.waitForSelector(input.selector, {
-        timeout: input.timeout || 30000,
-        state: input.state || 'visible',
+        timeout: effectiveTimeout,
+        state: effectiveState,
       });
 
       logger.info({ sessionId: input.sessionId, selector: input.selector }, 'Waited for selector');
+
+      if (recordingManager.isRecording(input.sessionId)) {
+        recordingManager.recordStep(input.sessionId, {
+          type: 'wait_for_selector',
+          selector: input.selector,
+          state: effectiveState,
+          timeout: effectiveTimeout,
+        });
+      }
 
       return {
         success: true,
@@ -248,6 +291,13 @@ export class ElementInteractionHandler {
     const result = await page.evaluate(input.script);
 
     logger.info({ sessionId: input.sessionId }, 'Executed script');
+
+    if (recordingManager.isRecording(input.sessionId)) {
+      recordingManager.recordStep(input.sessionId, {
+        type: 'execute',
+        script: input.script,
+      });
+    }
 
     return {
       success: true,

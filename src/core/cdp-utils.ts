@@ -223,6 +223,28 @@ export class CDPUtils {
     await client.send('Network.clearBrowserCookies');
   }
 
+  static async getNavigationHistory(page: any): Promise<{
+    currentIndex: number;
+    entries: Array<{ id: number; url: string; title: string }>;
+  }> {
+    const client = await page.context().newCDPSession(page);
+    const result = await client.send('Page.getNavigationHistory');
+
+    return {
+      currentIndex: result.currentIndex,
+      entries: (result.entries || []).map((entry: any) => ({
+        id: entry.id,
+        url: entry.url,
+        title: entry.title,
+      })),
+    };
+  }
+
+  static async navigateToHistoryEntry(page: any, entryId: number): Promise<void> {
+    const client = await page.context().newCDPSession(page);
+    await client.send('Page.navigateToHistoryEntry', { entryId });
+  }
+
   static isConnectionError(error: any): boolean {
     if (!error || typeof error !== 'object') {
       return false;

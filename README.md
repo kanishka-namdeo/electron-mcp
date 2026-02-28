@@ -7,13 +7,14 @@ A Model Context Protocol (MCP) server for testing Electron applications using Pl
 - **Electron App Lifecycle**: Launch and manage Electron applications programmatically
 - **CDP Connection**: Connect to running Electron apps via Chrome DevTools Protocol with retry logic and IPv6/IPv4 fallback
 - **Element Interaction**: Click, fill, select, and interact with UI elements
-- **Navigation**: Navigate to URLs and manage page state
+- **Navigation**: Navigate to URLs and manage page state, with CDP-backed navigation history tools
 - **Window Management**: Control Electron main windows (focus, minimize, maximize)
 - **Main Process Access**: Execute scripts in the Electron main process
 - **Visual Testing**: Capture screenshots and compare against baselines
-- **Accessibility Testing**: Retrieve accessibility tree information
+- **Accessibility Testing**: Retrieve accessibility tree information, structured accessibility snapshots, and role-based interactions
 - **Session Management**: Multiple concurrent test sessions with UUID tracking
-- **Advanced CDP Features**: Network emulation, geolocation override, device metrics, performance monitoring
+- **Advanced CDP Features**: Network emulation, geolocation override, device metrics, performance monitoring, navigation history
+- **Code Generation**: Record user flows and export Playwright tests
 - **Robust Error Handling**: Categorized errors with automatic classification and retry recommendations
 
 ## Installation
@@ -148,7 +149,7 @@ The Electron MCP Server provides **44 tools** across 6 categories:
 | `execute` | Execute JavaScript in the renderer process |
 | `get_page_info` | Get page URL and title |
 
-### Main Process & Window Control (5 tools)
+### Main Process & Window Control (8 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -157,8 +158,11 @@ The Electron MCP Server provides **44 tools** across 6 categories:
 | `focus_main_window` | Focus the main window |
 | `minimize_main_window` | Minimize the main window |
 | `maximize_main_window` | Maximize the main window |
+| `get_unresponsive_callstack` | Report capability info for unresponsive renderer callstack capture in Electron 34+ apps |
+| `get_shared_dictionary_info` | Report capability info for HTTP shared dictionary compression in Electron 34+ apps |
+| `clear_shared_dictionary_cache` | Report capability info for clearing shared dictionary cache in Electron 34+ apps |
 
-### Visual Testing (8 tools)
+### Visual Testing & Accessibility (11 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -168,8 +172,11 @@ The Electron MCP Server provides **44 tools** across 6 categories:
 | `get_viewport_size` | Get current viewport dimensions |
 | `set_viewport_size` | Set viewport dimensions |
 | `get_accessibility_tree` | Retrieve accessibility tree |
+| `get_accessibility_snapshot` | Get Playwright accessibility snapshot for the current page |
+| `find_accessible_node` | Find nodes by accessibility role/name with optional fuzzy matching |
+| `interact_accessible_node` | Click or fill accessible nodes by role/name |
 
-### Advanced CDP Features (10 tools)
+### Advanced CDP Features (12 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -183,6 +190,16 @@ The Electron MCP Server provides **44 tools** across 6 categories:
 | `get_performance_metrics` | Get performance metrics |
 | `clear_browser_cache` | Clear cache and cookies |
 | `get_user_agent` | Get current user agent |
+| `get_navigation_history` | Get navigation history entries via CDP |
+| `restore_navigation_history` | Restore a history entry via CDP |
+
+### Codegen & Recording
+
+| Tool | Description |
+|------|-------------|
+| `start_recording` | Start recording a flow for a session |
+| `stop_recording` | Stop recording and return structured steps |
+| `export_recording_as_test` | Export recorded steps as a Playwright test snippet |
 
 ## Links
 

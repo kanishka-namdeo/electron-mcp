@@ -281,4 +281,102 @@ export class CDPAdvancedHandler {
       );
     }
   }
+
+  async getNavigationHistory(sessionId: string) {
+    try {
+      const session = await this.sessionManager.getSession(sessionId);
+
+      // Get page from session, validating it exists
+      const page = session.page ?? session.context.pages()[0];
+      if (!page) {
+        throw createMCPError(
+          ErrorCategory.SESSION_ERROR,
+          'NO_PAGE_AVAILABLE',
+          'No page available in session'
+        );
+      }
+
+      const history = await CDPUtils.getNavigationHistory(page);
+
+      logger.info(
+        { sessionId, entries: history.entries.length, currentIndex: history.currentIndex },
+        'Retrieved navigation history'
+      );
+
+      return {
+        success: true,
+        ...history,
+      };
+    } catch (error) {
+      const mcpError = classifyError(error);
+      if (mcpError) {
+        throw mcpError;
+      }
+
+      logger.error({ sessionId, error }, 'Failed to get navigation history');
+      throw createMCPError(
+        ErrorCategory.PROTOCOL_ERROR,
+        'NAVIGATION_HISTORY_FAILED',
+        'Failed to get navigation history'
+      );
+    }
+  }
+
+  async restoreNavigationHistory(sessionId: string, index?: number) {
+    try {
+      const session = await this.sessionManager.getSession(sessionId);
+
+      // Get page from session, validating it exists
+      const page = session.page ?? session.context.pages()[0];
+      if (!page) {
+        throw createMCPError(
+          ErrorCategory.SESSION_ERROR,
+          'NO_PAGE_AVAILABLE',
+          'No page available in session'
+        );
+      }
+
+      const history = await CDPUtils.getNavigationHistory(page);
+
+      if (!history.entries.length) {
+        return {
+          success: false,
+          message: 'No navigation history entries available',
+        };
+      }
+
+      const targetIndex =
+        typeof index === 'number'
+          ? Math.min(Math.max(index, 0), history.entries.length - 1)
+          : history.currentIndex;
+
+      const entry = history.entries[targetIndex];
+
+      await CDPUtils.navigateToHistoryEntry(page, entry.id);
+
+      logger.info(
+        { sessionId, targetIndex, entryId: entry.id, url: entry.url },
+        'Restored navigation history entry'
+      );
+
+      return {
+        success: true,
+        restoredIndex: targetIndex,
+        restoredUrl: entry.url,
+        restoredTitle: entry.title,
+      };
+    } catch (error) {
+      const mcpError = classifyError(error);
+      if (mcpError) {
+        throw mcpError;
+      }
+
+      logger.error({ sessionId, error }, 'Failed to restore navigation history');
+      throw createMCPError(
+        ErrorCategory.PROTOCOL_ERROR,
+        'NAVIGATION_RESTORE_FAILED',
+        'Failed to restore navigation history entry'
+      );
+    }
+  }
 }

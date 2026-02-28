@@ -411,6 +411,49 @@ describe('Test App Integration Tests', () => {
       expect(result.text).toContain('Status');
       expect(result.text).toContain('Active');
     });
+
+    it('should get accessibility snapshot via role-based tool', async () => {
+      const result = await helper.callTool('get_accessibility_snapshot', {
+        sessionId,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.snapshot).toBeDefined();
+    });
+
+    it('should find accessibility node by role and name', async () => {
+      const result = await helper.callTool('find_accessible_node', {
+        sessionId,
+        role: 'button',
+        name: 'Click to perform accessibility action',
+        limit: 1,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.matches).toBeGreaterThan(0);
+      expect(Array.isArray(result.nodes)).toBe(true);
+      expect(result.nodes.length).toBeGreaterThan(0);
+      expect(result.nodes[0].role).toBe('button');
+    });
+
+    it('should interact with accessibility node using role-based tool', async () => {
+      const result = await helper.callTool('interact_accessible_node', {
+        sessionId,
+        role: 'button',
+        name: 'Click to perform accessibility action',
+        action: 'click',
+      });
+
+      expect(result.success).toBe(true);
+
+      const output = await helper.callTool('get_text', {
+        sessionId,
+        selector: '#a11yOutput',
+      });
+
+      expect(output.text).toContain('Status');
+      expect(output.text).toContain('Active');
+    });
   });
 
   describe('Window Controls', () => {

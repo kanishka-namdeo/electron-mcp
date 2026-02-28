@@ -36,6 +36,14 @@ import {
   GetPerformanceMetricsSchema,
   ClearBrowserCacheSchema,
   GetUserAgentSchema,
+  GetNavigationHistorySchema,
+  RestoreNavigationHistorySchema,
+  GetAccessibilitySnapshotSchema,
+  FindAccessibleNodeSchema,
+  InteractAccessibleNodeSchema,
+  StartRecordingSchema,
+  StopRecordingSchema,
+  ExportRecordingSchema,
 } from './validation-enhanced.js';
 import {
   EnableDebugSchema,
@@ -43,9 +51,9 @@ import {
   GetLogsSchema,
 } from './debug-tools.js';
 
-function getDefaultValue(zodDef: z.ZodDefault<any>): any {
+function getDefaultValue(zodDef: z.ZodDefault<any>): unknown {
   const def = zodDef._def;
-  if ('defaultValue' in def && typeof def.defaultValue === 'function') {
+  if (typeof def.defaultValue === 'function') {
     return def.defaultValue();
   }
   if ('defaultValue' in def) {
@@ -54,67 +62,88 @@ function getDefaultValue(zodDef: z.ZodDefault<any>): any {
   return undefined;
 }
 
-function zodToJsonSchema(schema: z.ZodTypeAny): object {
-  const shape = schema instanceof z.ZodObject ? schema.shape : undefined;
-  const properties: Record<string, any> = {};
-  const required: string[] = [];
+function describeZodType(zodValue: z.ZodTypeAny): Record<string, unknown> | undefined {
+  if (zodValue instanceof z.ZodDefault) {
+    return describeZodType(zodValue._def.innerType as z.ZodTypeAny);
+  }
+  if (zodValue instanceof z.ZodOptional) {
+    return describeZodType(zodValue._def.innerType as z.ZodTypeAny);
+  }
+  if (zodValue instanceof z.ZodString) {
+    return { type: 'string' };
+  }
+  if (zodValue instanceof z.ZodNumber) {
+    return { type: 'number' };
+  }
+  if (zodValue instanceof z.ZodBoolean) {
+    return { type: 'boolean' };
+  }
+  if (zodValue instanceof z.ZodEnum) {
+    return { type: 'string', enum: zodValue.options as string[] };
+  }
+  if (zodValue instanceof z.ZodArray) {
+    return { type: 'array', items: { type: 'string' } };
+  }
+  return undefined;
+}
 
-  if (shape) {
-    for (const [key, value] of Object.entries(shape)) {
-      const zodValue = value as z.ZodTypeAny;
-      
-      if (zodValue instanceof z.ZodString) {
-        properties[key] = { type: 'string' };
-        if (!zodValue.isOptional()) required.push(key);
-      } else if (zodValue instanceof z.ZodNumber) {
-        properties[key] = { type: 'number' };
-        if (!zodValue.isOptional()) required.push(key);
-      } else if (zodValue instanceof z.ZodBoolean) {
-        properties[key] = { type: 'boolean' };
-        if (!zodValue.isOptional()) required.push(key);
-      } else if (zodValue instanceof z.ZodArray) {
-        properties[key] = { type: 'array', items: { type: 'string' } };
-        if (!zodValue.isOptional()) required.push(key);
-      } else if (zodValue instanceof z.ZodDefault) {
-        const innerSchema = zodValue._def.innerType;
-        const defaultValue = getDefaultValue(zodValue);
-        
-        if (innerSchema instanceof z.ZodString) {
-          properties[key] = { type: 'string', default: defaultValue };
-        } else if (innerSchema instanceof z.ZodNumber) {
-          properties[key] = { type: 'number', default: defaultValue };
-        } else if (innerSchema instanceof z.ZodBoolean) {
-          properties[key] = { type: 'boolean', default: defaultValue };
-        } else if (innerSchema instanceof z.ZodArray) {
-          properties[key] = { type: 'array', items: { type: 'string' }, default: defaultValue };
-        } else {
-          properties[key] = { type: 'string', default: defaultValue };
-        }
-      } else if (zodValue instanceof z.ZodEnum) {
-        properties[key] = { type: 'string', enum: zodValue.options };
-        if (!zodValue.isOptional()) required.push(key);
-      } else if (zodValue instanceof z.ZodOptional) {
-        const innerSchema = zodValue.unwrap();
-        if (innerSchema instanceof z.ZodString) {
-          properties[key] = { type: 'string' };
-        } else if (innerSchema instanceof z.ZodNumber) {
-          properties[key] = { type: 'number' };
-        } else if (innerSchema instanceof z.ZodBoolean) {
-          properties[key] = { type: 'boolean' };
-        } else if (innerSchema instanceof z.ZodEnum) {
-          properties[key] = { type: 'string', enum: innerSchema.options };
-        } else if (innerSchema instanceof z.ZodArray) {
-          properties[key] = { type: 'array', items: { type: 'string' } };
-        }
-      }
+function zodToJsonSchema(schema: z.ZodTypeAny): object {
+  const toJSONSchema = (z as unknown as { toJSONSchema?: (schema: z.ZodTypeAny, options?: Record<string, unknown>) => object }).toJSONSchema;
+
+  if (typeof toJSONSchema === 'function') {
+    const converted = toJSONSchema(schema, {
+      target: 'openapi-3.0',
+      unrepresentable: 'any',
+      io: 'input',
+    }) as Record<string, unknown>;
+    // Ensure required is always an array for object schemas
+    if (converted.type === 'object' && !Array.isArray(converted.required)) {
+      converted.required = [];
     }
+    return converted;
   }
 
-  return {
-    type: 'object',
-    properties,
-    required: required.length > 0 ? required : [],
-  };
+  // Fallback: basic object schema with no additional metadata
+  if (schema instanceof z.ZodObject) {
+    const shape = schema.shape;
+    const properties: Record<string, any> = {};
+    const required: string[] = [];
+
+    for (const [key, value] of Object.entries(shape)) {
+      const zodValue = value as z.ZodTypeAny;
+      let inner: z.ZodTypeAny = zodValue;
+      let defaultVal: unknown;
+
+      if (inner instanceof z.ZodOptional) {
+        inner = inner._def.innerType as z.ZodTypeAny;
+      }
+      if (inner instanceof z.ZodDefault) {
+        defaultVal = getDefaultValue(inner);
+        inner = inner._def.innerType as z.ZodTypeAny;
+      }
+
+      const desc = describeZodType(inner as z.ZodTypeAny);
+      if (!desc) continue;
+
+      const prop: Record<string, unknown> = { ...desc };
+      if (defaultVal !== undefined) {
+        prop.default = defaultVal;
+      }
+      properties[key] = prop;
+
+      if (!zodValue.isOptional()) {
+        required.push(key);
+      }
+    }
+
+    return {
+      type: 'object',
+      properties,
+      required,
+    };
+  }
+
+  return {};
 }
 
 export const tools = [
@@ -239,6 +268,36 @@ export const tools = [
     inputSchema: zodToJsonSchema(GetAccessibilityTreeSchema),
   },
   {
+    name: 'get_accessibility_snapshot',
+    description: 'Get Playwright accessibility snapshot for the current page',
+    inputSchema: zodToJsonSchema(GetAccessibilitySnapshotSchema),
+  },
+  {
+    name: 'find_accessible_node',
+    description: 'Find accessible nodes by role and/or name using the accessibility tree',
+    inputSchema: zodToJsonSchema(FindAccessibleNodeSchema),
+  },
+  {
+    name: 'interact_accessible_node',
+    description: 'Interact with an accessible node by role and name (click or fill)',
+    inputSchema: zodToJsonSchema(InteractAccessibleNodeSchema),
+  },
+  {
+    name: 'start_recording',
+    description: 'Start recording user interactions for the given session',
+    inputSchema: zodToJsonSchema(StartRecordingSchema),
+  },
+  {
+    name: 'stop_recording',
+    description: 'Stop recording interactions and return the recorded steps',
+    inputSchema: zodToJsonSchema(StopRecordingSchema),
+  },
+  {
+    name: 'export_recording_as_test',
+    description: 'Export recorded steps as a Playwright test file snippet',
+    inputSchema: zodToJsonSchema(ExportRecordingSchema),
+  },
+  {
     name: 'get_protocol_info',
     description: 'Get CDP protocol information including browser version and capabilities',
     inputSchema: zodToJsonSchema(GetProtocolInfoSchema),
@@ -282,6 +341,16 @@ export const tools = [
     name: 'clear_browser_cache',
     description: 'Clear browser cache and cookies',
     inputSchema: zodToJsonSchema(ClearBrowserCacheSchema),
+  },
+  {
+    name: 'get_navigation_history',
+    description: 'Get navigation history entries for the current page using CDP Page.getNavigationHistory',
+    inputSchema: zodToJsonSchema(GetNavigationHistorySchema),
+  },
+  {
+    name: 'restore_navigation_history',
+    description: 'Restore a specific navigation history entry using CDP Page.navigateToHistoryEntry',
+    inputSchema: zodToJsonSchema(RestoreNavigationHistorySchema),
   },
   {
     name: 'get_user_agent',

@@ -17,9 +17,10 @@ coverage/
 *.lcov
 .nyc_output/
 
-# Documentation (only README.md is included via files array)
+# Documentation (only README.md, CHANGELOG.md, SECURITY.md, CONTRIBUTING.md are included via files array)
 TESTING.md
 MCP_ENHANCEMENTS.md
+PUBLISH_CHECKLIST.md
 
 # Development configs
 vitest.config.ts

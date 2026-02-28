@@ -1,9 +1,44 @@
 # Changelog
 
-All notable changes to the Electron MCP Server project will be documented in this file.
+All notable changes to Electron MCP Server project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.2] - 2026-02-28
+
+### Added
+- Accessibility testing tools with Playwright integration:
+  - `get_accessibility_snapshot` - Get structured accessibility tree
+  - `find_accessible_node` - Find nodes by role/name with fuzzy matching
+  - `interact_accessible_node` - Click or fill accessible nodes
+- Code generation and recording capabilities:
+  - `start_recording` - Start recording user interactions
+  - `stop_recording` - Stop recording and return steps
+  - `export_recording_as_test` - Export as Playwright test code
+- Navigation history management via CDP:
+  - `get_navigation_history` - Get navigation history entries
+  - `restore_navigation_history` - Navigate to history entry
+- Main process capability tools for Electron 34+:
+  - `get_unresponsive_callstack` - Renderer callstack capture info
+  - `get_shared_dictionary_info` - HTTP/3 shared dictionary info
+  - `clear_shared_dictionary_cache` - Clear shared dictionary cache
+- Comprehensive test coverage with 36 new unit tests
+- Recording manager for managing test flow capture
+- Enhanced validation schemas for all new tools
+
+### Changed
+- Updated MCP SDK to version 1.25.0
+- Improved test setup with proper session isolation
+- Enhanced Vitest configuration for ES module compatibility
+- Updated tools export index to include new handlers
+- Refactored main process handler with shared getPage method
+- Integrated recording hooks in element interaction handlers
+
+### Fixed
+- Fixed test cleanup to use recording manager clear instead of stop
+- Fixed mock setup for error handling tests
+- Corrected import paths in test files
 
 ## [1.0.1] - 2026-02-27
 
@@ -47,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Element interaction tools: click, fill, select, and interact with UI elements
 - Navigation tools for managing page state
 - Window management tools for controlling Electron main windows
-- Main process access for executing scripts in the Electron main process
+- Main process access for executing scripts in Electron main process
 - Visual testing with screenshots and baseline comparison
 - Accessibility testing with accessibility tree retrieval
 - Session management with multiple concurrent test sessions and UUID tracking
@@ -61,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Element Interaction**: Click, fill, select, and interact with UI elements
 - **Navigation**: Navigate to URLs and manage page state
 - **Window Management**: Control Electron main windows (focus, minimize, maximize)
-- **Main Process Access**: Execute scripts in the Electron main process
+- **Main Process Access**: Execute scripts in Electron main process
 - **Visual Testing**: Capture screenshots and compare against baselines
 - **Accessibility Testing**: Retrieve accessibility tree information
 - **Session Management**: Multiple concurrent test sessions with UUID tracking
@@ -78,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `get_text` - Get text content of an element
 - `screenshot` / `take_screenshot` - Take screenshot
 - `wait_for_selector` - Wait for an element to appear
-- `execute` - Execute JavaScript in the renderer process
+- `execute` - Execute JavaScript in renderer process
 - `get_page_info` - Get page URL and title
 - `execute_main_process_script` - Execute in main process
 - `get_main_window_info` - Get window information

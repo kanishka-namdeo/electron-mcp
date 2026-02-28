@@ -12,8 +12,10 @@ import { AppLifecycleHandler } from './tools/handlers/app-lifecycle.js';
 import { ElementInteractionHandler } from './tools/handlers/element-interaction.js';
 import { MainProcessHandler } from './tools/handlers/main-process.js';
 import { VisualTestingHandler } from './tools/handlers/visual-testing.js';
+import { AccessibilityHandler } from './tools/handlers/accessibility.js';
 import { isElectronMCPError } from './core/errors.js';
 import { CDPAdvancedHandler } from './tools/handlers/cdp-advanced.js';
+import { CodegenHandler } from './tools/handlers/codegen.js';
 import { initializeDebugManager, getDebugManager, closeDebugManager } from './core/debug-manager.js';
 import { initializeMCPLogging } from './core/mcp-logging.js';
 import * as debugTools from './tools/debug-tools.js';
@@ -31,11 +33,13 @@ async function main() {
   const mainProcessHandler = new MainProcessHandler(sessionManager);
   const visualTestingHandler = new VisualTestingHandler(sessionManager);
   const cdpAdvancedHandler = new CDPAdvancedHandler(sessionManager);
+  const accessibilityHandler = new AccessibilityHandler(sessionManager);
+  const codegenHandler = new CodegenHandler();
 
   const server = new Server(
     {
       name: 'electron-mcp-server',
-      version: '1.0.0',
+      version: '1.0.3',
     },
     {
       capabilities: {
@@ -127,6 +131,48 @@ async function main() {
         case 'maximize_main_window':
           return { content: [{ type: 'text', text: JSON.stringify(await mainProcessHandler.maximizeMainWindow((args as any).sessionId), null, 2) }] };
 
+        case 'get_unresponsive_callstack':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await mainProcessHandler.getUnresponsiveCallstack((args as any).sessionId),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'get_shared_dictionary_info':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await mainProcessHandler.getSharedDictionaryInfo((args as any).sessionId),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'clear_shared_dictionary_cache':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await mainProcessHandler.clearSharedDictionaryCache((args as any).sessionId),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
         case 'take_screenshot':
           return { content: [{ type: 'text', text: JSON.stringify(await visualTestingHandler.takeScreenshot((args as any).sessionId, (args as any).path, (args as any).fullPage), null, 2) }] };
 
@@ -144,6 +190,51 @@ async function main() {
 
         case 'get_accessibility_tree':
           return { content: [{ type: 'text', text: JSON.stringify(await visualTestingHandler.getAccessibilityTree((args as any).sessionId), null, 2) }] };
+
+        case 'get_accessibility_snapshot':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await accessibilityHandler.getAccessibilitySnapshot(
+                    (args as any).sessionId,
+                    (args as any).includeHidden
+                  ),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'find_accessible_node':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await accessibilityHandler.findAccessibleNode(args as any),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'interact_accessible_node':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await accessibilityHandler.interactAccessibleNode(args as any),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
 
         case 'get_protocol_info':
           return { content: [{ type: 'text', text: JSON.stringify(await cdpAdvancedHandler.getProtocolInfo((args as any).sessionId), null, 2) }] };
@@ -174,6 +265,79 @@ async function main() {
 
         case 'get_user_agent':
           return { content: [{ type: 'text', text: JSON.stringify(await cdpAdvancedHandler.getUserAgent((args as any).sessionId), null, 2) }] };
+
+        case 'get_navigation_history':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await cdpAdvancedHandler.getNavigationHistory((args as any).sessionId),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'restore_navigation_history':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await cdpAdvancedHandler.restoreNavigationHistory(
+                    (args as any).sessionId,
+                    (args as any).index
+                  ),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'start_recording':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await codegenHandler.startRecording(args as any),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'stop_recording':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await codegenHandler.stopRecording(args as any),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+
+        case 'export_recording_as_test':
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  await codegenHandler.exportRecordingAsTest(args as any),
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
 
         // Debug tools
         case 'enable_debug':
